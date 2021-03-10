@@ -3,16 +3,13 @@ description: 'modify jira workflow status'
 inputs:
   jira_url:
     description: 'jira url'
-    required: false
-    default: "https://nextdrive.atlassian.net"
+    required: true
   jira_user:
       description: 'jira user'
-      required: false
-      default: ${{ secrets.JIRA_USER }}
+      required: true
   jira_token:
     description: 'jira token'
-    required: false
-    default: ${{ secrets.JIRA_TOKEN }}
+    required: true
   jira_status:
     description: 'jira status'
     required: true
