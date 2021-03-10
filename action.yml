@@ -1,0 +1,23 @@
+name: 'Sync Jira Workflow'
+description: 'modify jira workflow status'
+inputs:
+  jira_url:
+    description: 'jira url'
+    required: false
+    default: "https://nextdrive.atlassian.net"
+  jira_user:
+      description: 'jira user'
+      required: false
+      default: "amber.lin@nextdrive.io"
+  jira_token:
+    description: 'jira token'
+    required: true
+  jira_status:
+    description: 'jira status'
+    required: true
+outputs:
+  success:
+    description: 'modify success'
+runs:
+  using: 'node12'
+  main: 'index.js'

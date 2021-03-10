@@ -1,0 +1,12 @@
+{
+  "name": "sync-jira-workflow",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:nextDriveIoE/sync-jira-workflow.git",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0",
+    "node-fetch": "^2.6.1"
+  }
+}
