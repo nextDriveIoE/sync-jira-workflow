@@ -8,10 +8,11 @@ inputs:
   jira_user:
       description: 'jira user'
       required: false
-      default: "amber.lin@nextdrive.io"
+      default: ${{ secrets.JIRA_USER }}
   jira_token:
     description: 'jira token'
-    required: true
+    required: false
+    default: ${{ secrets.JIRA_TOKEN }}
   jira_status:
     description: 'jira status'
     required: true
