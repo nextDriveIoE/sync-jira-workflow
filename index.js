@@ -14,7 +14,9 @@ if (head_commit) {
     title = head_commit.message
 }
 
-parseJiraIssue(title).forEach((issue => {
-    fetchJira(issue)
-}))
+const issues = parseJiraIssue(title)
+if (issues) {
+    issues.forEach((issue => fetchJira(issue)))
+}
+
 
