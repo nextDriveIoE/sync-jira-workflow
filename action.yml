@@ -11,7 +11,10 @@ inputs:
     description: 'jira token'
     required: true
   jira_status:
-    description: 'jira status'
+    description: 'jira status is "In Progress", "To Code Review", "To Inspect"'
+    required: true
+  action_status:
+    description: 'action status is pr_merged, pull_request, new_branch'
     required: true
 outputs:
   success:

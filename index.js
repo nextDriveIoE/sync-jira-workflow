@@ -1,22 +1,29 @@
 const fetchJira = require('./src/fetchJira');
 const parseJiraIssue = require('./parser/parseJiraIssue');
-
 const github = require('@actions/github');
-let title = ""
+const core = require('@actions/core');
 
-const pull_request = github.context.payload.pull_request;
-if (pull_request) {
-    title = pull_request.title;
+const action_status = core.getInput('action_status');
+let issues
+
+if (action_status === "new_branch") {
+    title = github.context.payload.ref;
+    issues = title.split("issue/")[1].split(",")
+    console.log(issues);
 }
 
-const head_commit = github.context.payload.head_commit;
-if (head_commit) {
-    title = head_commit.message
+if (action_status === "pull_request") {
+    title = github.context.payload.pull_request.title;
+    issues = parseJiraIssue(title)
 }
 
-const issues = parseJiraIssue(title)
+if (action_status === "pr_merged") {
+    title = github.context.payload.head_commit.message;
+    issues = parseJiraIssue(title)
+}
+
 if (issues) {
-    issues.forEach((issue => fetchJira(issue)))
+    issues.forEach((issue => fetchJira(issue.trim())))
 }
 
 
