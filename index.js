@@ -6,10 +6,10 @@ const core = require('@actions/core');
 const action_status = core.getInput('action_status');
 let issues
 
-if (action_status === "new_branch") {
+if (action_status === "new_branch" && github.context.payload.created) {
     title = github.context.payload.ref;
-    issues = title.split("issue/")[1].split(",")
-    console.log(issues);
+    const branchName = title.split("/").pop()
+    issues = branchName.split(",")
 }
 
 if (action_status === "pull_request") {
