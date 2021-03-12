@@ -6,7 +6,7 @@ const core = require('@actions/core');
 const action_status = core.getInput('action_status');
 let issues
 
-if (action_status === "new_branch" && github.context.payload.created) {
+if (action_status === "new_branch") {
     title = github.context.payload.ref;
     const branchName = title.split("/").pop()
     issues = branchName.split(",")
