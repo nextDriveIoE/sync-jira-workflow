@@ -23,6 +23,7 @@ module.exports = (issue) => {
         })
         .then(res => {
             if (res.errorMessages) {
+                console.log(res.errorMessages);
                 return
             }
             const status = res.transitions.find((item) => item.name === jira_status)
