@@ -8,5 +8,5 @@
 
 ### jira_status are as follows
 - In Progress
-- To Code Review
-- To Inspect
+- In Code Review
+- Inspecting
