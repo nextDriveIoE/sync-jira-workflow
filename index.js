@@ -18,6 +18,7 @@ if (action_status === "pull_request") {
 }
 
 if (action_status === "pr_merged") {
+    console.log(github.context)
     title = github.context.payload.head_commit.message;
     issues = parseJiraIssue(title)
 }
