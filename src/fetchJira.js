@@ -26,7 +26,7 @@ module.exports = (issue) => {
                 console.log(res.errorMessages);
                 return
             }
-            const status = res.transitions.find((item) => item.to.name === jira_status)
+            const status = res.transitions.find((item) => item.to.name && (item.to.name.toLowerCase() === jira_status.toLowerCase()))
             if (!status) {
                 console.log(`${issue} can not find "${jira_status}" status`);
                 return;
