@@ -10,11 +10,8 @@ inputs:
   jira_token:
     description: 'jira token'
     required: true
-  jira_status:
-    description: 'jira status'
-    required: true
-  action_status:
-    description: 'action status'
+  jira_status_flow:
+    description: 'jira status flow'
     required: true
 outputs:
   success:
