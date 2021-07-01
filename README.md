@@ -43,7 +43,6 @@ status -> JIRA_STATUS_1 (has no keyword)
 ```
 
 ### keyword in PR title
-```
 - close
 - closes
 - closed
@@ -53,4 +52,11 @@ status -> JIRA_STATUS_1 (has no keyword)
 - resolve
 - resolves
 - resolved
-```
+
+## Example
+### Create new remote branch
+- fix/AB-123
+- fix/AB-123,AB-456
+
+### Create pull request
+- fix: resolve [AB-123] xxxxx
