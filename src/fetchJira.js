@@ -4,53 +4,81 @@ const core = require('@actions/core');
 const jira_url = core.getInput('jira_url');
 const jira_user = core.getInput('jira_user');
 const jira_token = core.getInput('jira_token');
-const jira_status = core.getInput('jira_status');
 
-module.exports = (issue) => {
-    const url = `${jira_url}/rest/api/2/issue/${issue}/transitions`
-    fetch(url, {
+function getCurrentStatus(issue) {
+    return fetch(`${jira_url}/rest/api/2/issue/${issue}?fields=status`, {
         method: "GET",
         headers: {
-            'Authorization': `Basic ${Buffer.from(
-                `${jira_user}:${jira_token}`
-            ).toString('base64')}`,
+            'Authorization': `Basic ${Buffer.from(`${jira_user}:${jira_token}`).toString('base64')}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+        .then((res) => res.json())
+        .catch(err => core.setFailed(err));
+}
+
+function getIssueTransitions(issue) {
+    return fetch(`${jira_url}/rest/api/2/issue/${issue}/transitions`, {
+        method: "GET",
+        headers: {
+            'Authorization': `Basic ${Buffer.from(`${jira_user}:${jira_token}`).toString('base64')}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+        .then((res) => res.json())
+        .catch(err => core.setFailed(err));
+}
+
+function updateIssueTransitions(issue, id) {
+    return fetch(`${jira_url}/rest/api/2/issue/${issue}/transitions`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Basic ${Buffer.from(`${jira_user}:${jira_token}`).toString('base64')}`,
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
+        body:JSON.stringify({
+            transition: { id }
+        })
     })
-        .then(res => {
-            return res.json();
-        })
-        .then(res => {
-            if (res.errorMessages) {
-                console.log(res.errorMessages);
-                return
-            }
-            const status = res.transitions.find((item) => item.to.name && (item.to.name.toLowerCase() === jira_status.toLowerCase()))
-            if (!status) {
-                console.log(`${issue} can not find "${jira_status}" status`);
-                return;
-            }
-            const id = status.id
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Basic ${Buffer.from(
-                        `${jira_user}:${jira_token}`
-                    ).toString('base64')}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body:JSON.stringify({
-                    transition: { id }
-                }),
-            })
-                .then(res => {
-                    if (res.status === 204) {
-                        console.log(`${issue} success modify status is "${jira_status}"`);
-                    }
-                })
-                .catch(err => console.error(err));
-        })
-        .catch(err => console.error(err));
+        .catch(err => core.setFailed(err));
 }
+
+async function fetchJira(issue, jira_status, jira_status_transition) {
+    const currentStatusResponse = await getCurrentStatus(issue);
+    if (currentStatusResponse.errorMessages) {
+        core.setFailed(`errorMessages:${currentStatusResponse.errorMessages}, issue:${issue}, jira_status:${jira_status}`);
+        return;
+    }
+
+    const currentStatus = currentStatusResponse.fields.status.name;
+    if (currentStatus.toLowerCase() === jira_status.toLowerCase()) {
+        console.log(`${issue} already is "${jira_status}"`);
+        return;
+    }
+
+    const getTransitionsResponse = await getIssueTransitions(issue);
+    let recall = false;
+    let toStatus = getTransitionsResponse.transitions.find((item) => item.to.name && (item.to.name.toLowerCase() === jira_status.toLowerCase()));
+
+    if (!toStatus) {
+        if (jira_status_transition) {
+            toStatus = getTransitionsResponse.transitions.find((item) => item.to.name && (item.to.name.toLowerCase() === jira_status_transition.toLowerCase()));
+            recall = true
+        } else {
+            core.setFailed(`${issue} can not find "${jira_status}" status`);
+            return;
+        }
+    }
+    const updateTransitionsResponse = await updateIssueTransitions(issue, toStatus.id);
+    if (updateTransitionsResponse.status === 204) {
+        console.log(`${issue} success modify status is "${toStatus.to.name}"`);
+        if (recall) {
+            await fetchJira(issue, jira_status)
+        }
+    }
+}
+
+module.exports = fetchJira;
