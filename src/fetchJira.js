@@ -66,15 +66,16 @@ async function fetchJira(issue, jira_status, jira_status_transition) {
     let recall = false;
     let toStatus = getTransitionsResponse.transitions.find((item) => item.to.name && (item.to.name.toLowerCase() === jira_status.toLowerCase()));
 
-    if (!toStatus) {
-        if (jira_status_transition) {
-            toStatus = getTransitionsResponse.transitions.find((item) => item.to.name && (item.to.name.toLowerCase() === jira_status_transition.toLowerCase()));
-            recall = true
-        } else {
-            core.setFailed(`${issue} can not find "${jira_status}" status`);
-            return;
-        }
+    if (!toStatus && jira_status_transition) {
+        toStatus = getTransitionsResponse.transitions.find((item) => item.to.name && (item.to.name.toLowerCase() === jira_status_transition.toLowerCase()));
+        recall = true
     }
+
+    if (!toStatus) {
+        core.setFailed(`${issue} can not find "${jira_status}" status`);
+        return;
+    }
+
     console.info("toStatus", toStatus);
     const updateTransitionsResponse = await updateIssueTransitions(issue, toStatus.id);
     if (updateTransitionsResponse.status === 204) {
