@@ -47,6 +47,9 @@ function updateIssueTransitions(issue, id) {
 }
 
 async function fetchJira(issue, jira_status, jira_status_transition) {
+    console.info("issue", issue);
+    console.info("jira_status", jira_status);
+    console.info("jira_status_transition", jira_status_transition);
     const currentStatusResponse = await getCurrentStatus(issue);
     if (currentStatusResponse.errorMessages) {
         core.setFailed(`errorMessages:${currentStatusResponse.errorMessages}, issue:${issue}, jira_status:${jira_status}`);
@@ -72,6 +75,7 @@ async function fetchJira(issue, jira_status, jira_status_transition) {
             return;
         }
     }
+    console.info("toStatus", toStatus);
     const updateTransitionsResponse = await updateIssueTransitions(issue, toStatus.id);
     if (updateTransitionsResponse.status === 204) {
         console.log(`${issue} success modify status is "${toStatus.to.name}"`);
