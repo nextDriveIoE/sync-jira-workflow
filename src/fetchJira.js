@@ -63,6 +63,7 @@ async function fetchJira(issue, jira_status, jira_status_transition) {
     }
 
     const getTransitionsResponse = await getIssueTransitions(issue);
+    console.log("getTransitionsResponse=>", getTransitionsResponse)
     let recall = false;
     let toStatus = getTransitionsResponse.transitions.find((item) => item.to.name && (item.to.name.toLowerCase() === jira_status.toLowerCase()));
 
