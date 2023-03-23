@@ -1,6 +1,6 @@
 {
   "name": "sync-jira-workflow",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "main": "index.js",
   "repository": "git@github.com:nextDriveIoE/sync-jira-workflow.git",
   "license": "MIT",
