@@ -1,29 +1,51 @@
 const fetchJira = require('./src/fetchJira');
 const parseJiraIssue = require('./parser/parseJiraIssue');
+const parseJiraIssueByKeyword = require('./parser/parseJiraIssueByKeyword');
+const parseJiraIssueByNoSymbol = require('./parser/parseJiraIssueByNoSymbol');
 const github = require('@actions/github');
 const core = require('@actions/core');
+const jira_status_flow = core.getInput('jira_status_flow');
+const flow = JSON.parse(jira_status_flow);
 
-const action_status = core.getInput('action_status');
-let issues
+// pr_merged
+if (github.context.payload.head_commit && flow["pr_merged"]) {
+    const title = github.context.payload.head_commit.message;
+    const issues = parseJiraIssue(title);
+    if (issues) {
+        const keywordIssue = parseJiraIssueByKeyword(title);
 
-if (action_status === "new_branch") {
-    title = github.context.payload.ref;
-    const branchName = title.split("/").pop()
-    issues = branchName.split(",")
+        if (keywordIssue) {
+            keywordIssue.forEach((issue => fetchJira(issue.trim(), flow["pr_merged"])));
+        }
+
+        if (flow["new_branch"]) {
+            issues
+                .filter((i) => !keywordIssue || !keywordIssue.includes(i))
+                .forEach((issue => fetchJira(issue.trim(), flow["new_branch"])));
+        }
+    } else {
+        console.log("No Any Issue Need To Change");
+    }
 }
 
-if (action_status === "pull_request") {
-    title = github.context.payload.pull_request.title;
-    issues = parseJiraIssue(title)
+// pull_request
+if (github.context.payload.pull_request && flow["pull_request"]) {
+    const title = github.context.payload.pull_request.title;
+    const issues = parseJiraIssue(title);
+    if (issues) {
+        issues.forEach((issue => fetchJira(issue.trim(), flow["pull_request"], flow["new_branch"])));
+    } else {
+        console.log("No Any Issue Need To Change");
+    }
 }
 
-if (action_status === "pr_merged") {
-    title = github.context.payload.head_commit.message;
-    issues = parseJiraIssue(title)
+// new_branch
+if (github.context.payload.ref_type && flow["new_branch"]) {
+    const title = github.context.payload.ref;
+    const issues = parseJiraIssueByNoSymbol(title);
+    if (issues) {
+        issues.forEach((issue => fetchJira(issue.trim(), flow["new_branch"])));
+    } else {
+        console.log("No Any Issue Need To Change");
+    }
 }
-
-if (issues) {
-    issues.forEach((issue => fetchJira(issue.trim())))
-}
-
-
