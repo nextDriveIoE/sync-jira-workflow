@@ -1,4 +1,4 @@
-# nextDriveIoE/sync-jira-workflow@2.0.0
+# nextDriveIoE/sync-jira-workflow@3.0.0
 
 ## How to use
 ```

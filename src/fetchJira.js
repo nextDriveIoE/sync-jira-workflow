@@ -1,18 +1,23 @@
-const fetch = require('node-fetch');
-const core = require('@actions/core');
+const fetch = require("node-fetch");
+const core = require("@actions/core");
 
-const jira_url = core.getInput('jira_url');
-const jira_user = core.getInput('jira_user');
-const jira_token = core.getInput('jira_token');
+const jira_url = core.getInput("jira_url");
+const jira_user = core.getInput("jira_user");
+const jira_token = core.getInput("jira_token");
+
+const BASIC_AUTH = `Basic ${Buffer.from(
+    `${jira_user}:${jira_token}`
+).toString("base64")}`;
+const HTTP_HEADERS = {
+    "Authorization": BASIC_AUTH,
+    "Accept": "application/json",
+    "Content-Type": "application/json"
+};
 
 function getCurrentStatus(issue) {
     return fetch(`${jira_url}/rest/api/2/issue/${issue}?fields=status`, {
         method: "GET",
-        headers: {
-            'Authorization': `Basic ${Buffer.from(`${jira_user}:${jira_token}`).toString('base64')}`,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
+        headers: HTTP_HEADERS
     })
         .then((res) => res.json())
         .catch(err => core.setFailed(err));
@@ -21,11 +26,7 @@ function getCurrentStatus(issue) {
 function getIssueTransitions(issue) {
     return fetch(`${jira_url}/rest/api/2/issue/${issue}/transitions`, {
         method: "GET",
-        headers: {
-            'Authorization': `Basic ${Buffer.from(`${jira_user}:${jira_token}`).toString('base64')}`,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
+        headers: HTTP_HEADERS
     })
         .then((res) => res.json())
         .catch(err => core.setFailed(err));
@@ -33,12 +34,8 @@ function getIssueTransitions(issue) {
 
 function updateIssueTransitions(issue, id) {
     return fetch(`${jira_url}/rest/api/2/issue/${issue}/transitions`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Basic ${Buffer.from(`${jira_user}:${jira_token}`).toString('base64')}`,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        },
+        method: "POST",
+        headers: HTTP_HEADERS,
         body:JSON.stringify({
             transition: { id }
         })
